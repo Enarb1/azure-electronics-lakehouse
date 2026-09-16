@@ -12,7 +12,7 @@ from src.bronze import ingest_bronze
 
 ENTITIES = {
     "sales":          {},
-    "customers":      {}, #"encoding": "ISO-8859-1"
+    "customers":      {"encoding": "ISO-8859-1"},
     "products":       {},
     "stores":         {},
     "exchange_rates": {},
