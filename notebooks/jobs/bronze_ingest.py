@@ -10,11 +10,17 @@ from src.bronze import ingest_bronze
 
 # COMMAND ----------
 
-ENTITIES = ["sales", "customers", "products", "stores", "exchange_rates"]
+ENTITIES = {
+    "sales":          {},
+    "customers":      {"encoding": "ISO-8859-1"},
+    "products":       {},
+    "stores":         {},
+    "exchange_rates": {},
+}
 
 catalog = dbutils.widgets.get("catalog")
 run_date = dbutils.widgets.get("run_date")
 
-for entity in ENTITIES:
-    n = ingest_bronze(spark, catalog, run_date, entity)
+for entity, opts in ENTITIES.items():
+    n = ingest_bronze(spark, catalog, run_date, entity, options=opts)
     print(f"{entity}: {n} rows")

@@ -2,15 +2,17 @@ from pyspark.sql import functions as F
 
 from src.transform import rename_columns
 
-def ingest_bronze(spark, catalog: str, run_date: str, entity: str, container: str = "bronze"):
+def ingest_bronze(spark, catalog: str, run_date: str, entity: str, container: str = "bronze", options: dict = None):
     if not run_date:
         raise ValueError("run_date is required")
 
     path = f"abfss://{container}@learnenarb.dfs.core.windows.net/landing/{entity}/"
 
+    options = {"header": "true", **(options or {})}
+
     df = (
         spark.read
-        .option("header", True)
+        .options(**options)
         .csv(path)
         .select(
             "*",
