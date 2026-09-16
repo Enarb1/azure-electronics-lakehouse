@@ -2,9 +2,13 @@
 dbutils.widgets.text("catalog", "electronics")
 dbutils.widgets.text("run_date", "")
 
+# COMMAND ----------
+
 import sys, os
 sys.path.append(os.path.abspath(os.path.join(os.getcwd(), "../..")))
 from src.bronze import ingest_bronze
+
+# COMMAND ----------
 
 ENTITIES = ["sales", "customers", "products", "stores", "exchange_rates"]
 
