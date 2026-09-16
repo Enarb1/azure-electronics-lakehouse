@@ -1,6 +1,6 @@
 from pyspark.sql import functions as F
 
-from src.transform import rename_columns
+from src.transform import rename_columns, assert_no_mojibake
 
 def ingest_bronze(
         spark,
@@ -32,6 +32,7 @@ def ingest_bronze(
     )
 
     df = rename_columns(df)
+    assert_no_mojibake(df, entity)
 
     spark.sql(f"CREATE SCHEMA IF NOT EXISTS {catalog}.bronze")
     df.write.mode("overwrite").saveAsTable(f"{catalog}.bronze.{entity}")
