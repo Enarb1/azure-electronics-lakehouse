@@ -2,7 +2,14 @@ from pyspark.sql import functions as F
 
 from src.transform import rename_columns
 
-def ingest_bronze(spark, catalog: str, run_date: str, entity: str, container: str = "bronze", options: dict = None):
+def ingest_bronze(
+        spark,
+        catalog: str,
+        run_date: str,
+        entity: str,
+        container: str = "bronze",
+        options: dict | None = None
+):
     if not run_date:
         raise ValueError("run_date is required")
 
