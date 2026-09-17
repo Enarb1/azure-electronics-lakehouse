@@ -35,6 +35,6 @@ def ingest_bronze(
     assert_no_mojibake(df, entity)
 
     spark.sql(f"CREATE SCHEMA IF NOT EXISTS {catalog}.bronze")
-    df.write.mode("overwrite").option("overwriteSchema", "true").saveAsTable(f"{catalog}.bronze.{entity}")
+    df.write.mode("overwrite").saveAsTable(f"{catalog}.bronze.{entity}")
 
     return spark.table(f"{catalog}.bronze.{entity}").count()
