@@ -2,6 +2,60 @@ from pyspark.sql import functions as F
 
 from src.transform import rename_columns, assert_no_mojibake
 
+
+
+def ingest_bronze_autoloader(
+        spark,
+        catalog: str,
+        run_date: str,
+        entity: str,
+        container: str = "bronze",
+        options: dict | None = None
+):
+
+    if not run_date:
+        raise ValueError("run_date is required")
+
+    source = f"abfss://{container}@learnenarb.dfs.core.windows.net/landing/{entity}/"
+    checkpoint = f"abfss://{container}@learnenarb.dfs.core.windows.net/_checkpoints/{entity}/"
+
+    options = {"header": "true", **(options or {})}
+
+
+    df =  (
+        spark.readStream
+        .format("cloudFiles")
+        .option("cloudFiles.format", "csv")
+        .option("cloudFiles.schemaLocation", f"{checkpoint}schema/")
+        .options(**options)
+        .load(source)
+    )
+
+    df = rename_columns(df)
+    df = df.select(
+        "*",
+        F.col("_metadata.file_path").alias("_file_path"),
+        F.col("_metadata.file_size").alias("_file_size"),
+        F.col("_metadata.file_modification_time").alias("_last_modified_at"),
+    ).withColumn("_ingested_at", F.current_timestamp()).withColumn("_run_date", F.lit(run_date).cast("date"))
+
+    spark.sql(f"CREATE SCHEMA IF NOT EXISTS {catalog}.bronze")
+
+    (
+        df.writeStream
+        .option("checkpointLocation", f"{checkpoint}write/")
+        .trigger(availableNow=True)
+        .toTable(f"{catalog}.bronze.{entity}")
+        .awaitTermination()
+     )
+
+    assert_no_mojibake(spark.table(f"{catalog}.bronze.{entity}"), entity)
+
+    return spark.table(f"{catalog}.bronze.{entity}").count()
+
+
+
+
 def ingest_bronze(
         spark,
         catalog: str,

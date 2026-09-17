@@ -6,7 +6,7 @@ dbutils.widgets.text("run_date", "")
 
 import sys, os
 sys.path.append(os.path.abspath(os.path.join(os.getcwd(), "../..")))
-from src.bronze import ingest_bronze
+from src.bronze import ingest_bronze_autoloader
 
 # COMMAND ----------
 
@@ -22,5 +22,5 @@ catalog = dbutils.widgets.get("catalog")
 run_date = dbutils.widgets.get("run_date")
 
 for entity, opts in ENTITIES.items():
-    n = ingest_bronze(spark, catalog, run_date, entity, options=opts)
+    n = ingest_bronze_autoloader(spark, catalog, run_date, entity, options=opts)
     print(f"{entity}: {n} rows")
