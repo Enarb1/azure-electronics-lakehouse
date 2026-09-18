@@ -1,14 +1,13 @@
 import re
 from pyspark.sql import functions as F, types as T
 
+REPLACEMENT_CHAR = "\uFFFD"
+
 def rename_columns(df):
     for old in df.columns:
         new = re.sub(r"[^0-9a-zA-Z]+", "_", old).rstrip("_").lower()
         df = df.withColumnRenamed(old, new)
     return df
-
-
-REPLACEMENT_CHAR = "\uFFFD"
 
 
 def assert_no_mojibake(df, entity: str = ""):
